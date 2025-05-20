@@ -1,14 +1,16 @@
 from cryptography.fernet import Fernet, InvalidToken
 import hashlib
 import base64
-import os
-from utils import log_operation, notify_error
+import logging
+from utils import notify_error
 
 class EncryptionManager:
     def __init__(self):
+        """Ініціалізація менеджера шифрування."""
         pass
 
     def encrypt_file(self, filepath, password):
+        """Шифрує файл за допомогою пароля."""
         try:
             salt = b'salt_'
             password_encoded = password.encode('utf-8')
@@ -21,14 +23,15 @@ class EncryptionManager:
             encrypted_filepath = filepath + ".encrypted"
             with open(encrypted_filepath, "wb") as file:
                 file.write(encrypted_data)
-            log_operation(f"Файл зашифровано: {os.path.basename(encrypted_filepath)}")
+            logging.info(f"Файл зашифровано: {os.path.basename(encrypted_filepath)}")
             return encrypted_filepath
         except Exception as e:
-            log_operation(f"Помилка шифрування: {e}")
+            logging.error(f"Помилка шифрування: {e}")
             notify_error(f"Помилка шифрування: {e}")
             return None
 
     def decrypt_file(self, filepath, password):
+        """Розшифровує файл за допомогою пароля."""
         try:
             decrypted_filepath = filepath.replace(".encrypted", "")
             salt = b'salt_'
@@ -41,13 +44,13 @@ class EncryptionManager:
             decrypted_data = f.decrypt(encrypted_data)
             with open(decrypted_filepath, "wb") as file:
                 file.write(decrypted_data)
-            log_operation(f"Файл розшифровано: {os.path.basename(decrypted_filepath)}")
+            logging.info(f"Файл розшифровано: {os.path.basename(decrypted_filepath)}")
             return decrypted_filepath
         except InvalidToken:
-            log_operation("Помилка розшифрування: невірний пароль")
+            logging.error("Помилка розшифрування: невірний пароль")
             notify_error("Невірний пароль.")
             return None
         except Exception as e:
-            log_operation(f"Помилка розшифрування: {e}")
+            logging.error(f"Помилка розшифрування: {e}")
             notify_error(f"Помилка розшифрування: {e}")
             return None
